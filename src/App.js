@@ -1,24 +1,54 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useMemo, useEffect } from 'react';
+import { GlobalStyle } from './globalStyle';
+import { Home, About, Work, Contact, Navbar } from './components/index';
+const sections = document.querySelectorAll("section");
+const navList = document.querySelectorAll(".navlink");
 
 function App() {
+  const [isVisible, setIsVisible] = useState(false);
+
+  const options = useMemo(() => ({
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.6
+  }), [])
+
+
+  const callback = entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        setIsVisible(true)
+        navList.forEach((link) => {
+          link.classList.remove("active");
+          if (entry.target.id === link.dataset.nav) {
+            link.classList.add("active");
+          }
+        })
+      }
+    });
+  }
+
+  const optionsMemo = useMemo(() => {
+    return options
+  }, [options]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(callback, optionsMemo);
+    sections.forEach(section => {
+      observer.observe(section);
+    })
+    return
+  }, [isVisible, optionsMemo])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <GlobalStyle />
+      <Navbar />
+      <Home />
+      <About />
+      <Work />
+      <Contact />
+    </>
   );
 }
 
